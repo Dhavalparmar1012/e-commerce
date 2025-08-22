@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import * as Yup from 'yup';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { signIn } from 'next-auth/react';
@@ -15,11 +14,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormInput from '@/components/UIComponents/FormInput';
 import { LoginContainer, LoginMainContainer, LoginSubmitButton, LoginTitle, RegisterLink } from './authentication.styled';
-
-const validationSchema = Yup.object({
-  email: Yup.string().email('Invalid email address').required('Email is required'),
-  password: Yup.string().required('Password is required'),
-});
+import { loginSchema } from '@/utils/validationSchemas';
 
 const Login = () => {
   const router = useRouter();
@@ -32,7 +27,7 @@ const Login = () => {
 
   const { errors, values, touched, handleChange, handleBlur, handleSubmit, isSubmitting, setSubmitting } = useFormik({
     initialValues,
-    validationSchema,
+    validationSchema: loginSchema,
     onSubmit: (values) => {
       handleSubmitForm(values);
     },

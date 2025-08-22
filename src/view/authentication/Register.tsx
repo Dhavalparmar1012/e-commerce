@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
@@ -15,27 +14,24 @@ import FormInput from '@/components/UIComponents/FormInput';
 import { LoginLink, RegisterContainer, RegisterMainContainer, RegisterSubmitButton, RegisterTitle } from './authentication.styled';
 import { registerUser } from '@/services/admin/userService';
 import Grid from '@mui/material/Grid';
-
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  email: Yup.string().email('Invalid email address').required('Email address is required'),
-  password: Yup.string().required('Password is required'),
-});
+import { registerSchema } from '@/utils/validationSchemas';
 
 const Register = () => {
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const initialValues = {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
   };
 
   const { errors, values, touched, handleChange, handleBlur, handleSubmit, isSubmitting, setSubmitting } = useFormik({
     initialValues,
-    validationSchema,
+    validationSchema: registerSchema,
     onSubmit: (values) => {
       handleSubmitForm(values);
     },
@@ -115,6 +111,7 @@ const Register = () => {
                 label="Password"
                 name="password"
                 id="password"
+                fullWidth
                 value={values.password}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -124,6 +121,29 @@ const Register = () => {
                   endAdornment: (
                     <InputAdornment position="end" sx={{ cursor: 'pointer' }} onClick={() => setShowPassword((s) => !s)}>
                       {showPassword ? <LockOpenIcon color="primary" /> : <LockIcon color="primary" />}
+                    </InputAdornment>
+                  ),
+                }}
+                required
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <FormInput
+                type={showConfirmPassword ? 'text' : 'password'}
+                label="Confirm Password"
+                name="confirmPassword"
+                id="confirmPassword"
+                fullWidth
+                value={values.confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.confirmPassword && Boolean(errors.confirmPassword)}
+                helperText={touched.confirmPassword ? errors.confirmPassword : undefined}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end" sx={{ cursor: 'pointer' }} onClick={() => setShowConfirmPassword((s) => !s)}>
+                      {showConfirmPassword ? <LockOpenIcon color="primary" /> : <LockIcon color="primary" />}
                     </InputAdornment>
                   ),
                 }}
