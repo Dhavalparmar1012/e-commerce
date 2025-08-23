@@ -1,10 +1,7 @@
 'use client';
-
 import { useState } from 'react';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
-
-// MATERIAL - UI
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import AppBar from '@mui/material/AppBar';
@@ -41,7 +38,7 @@ const Header = () => {
   const drawerContent = (
     <Box onClick={toggleDrawer} sx={{ width: 250 }}>
       <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }}>
-        <Link href={'/'}>MyApp</Link>
+        <Link href={'/'}>{process.env.NEXT_PUBLIC_COMPANY_NAME}</Link>
       </Typography>
 
       <Divider />
@@ -118,7 +115,7 @@ const Header = () => {
     <AppBar position="static" sx={{ backgroundColor: '#1976d2' }}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1, cursor: 'pointer' }}>
-          <Link href={'/'}>MyApp</Link>
+          <Link href={'/'}>{process.env.NEXT_PUBLIC_COMPANY_NAME}</Link>
         </Typography>
 
         {isMobile ? (
