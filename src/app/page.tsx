@@ -1,13 +1,12 @@
-// PROJECT IMPORTS
-
+import AuthLayout from '@/sections/auth/AuthLayout';
 import GuestGuard from '@/utils/route-guard/GuestGuard';
-import Login from '@/view/authentication/Login';
+import LoginForm from '@/view/authentication/LoginForm';
 
-// ==============================|| LANDING PAGE ||============================== //
+// ==============================|| LOGIN ||============================== //
 
 const Landing = () => (
   <GuestGuard>
-    <Login />
+    <AuthLayout content={<LoginForm />} />
   </GuestGuard>
 );
 

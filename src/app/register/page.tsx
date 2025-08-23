@@ -1,10 +1,8 @@
-import React from 'react';
-
-// PROJECT IMPORTS
-import Register from '@/view/authentication/Register';
+import RegisterForm from '@/view/authentication/RegisterForm';
+import AuthLayout from '@/sections/auth/AuthLayout';
 
 // ================================|| REGISTER ||================================ //
 
-const RegisterPage = () => <Register />;
+const RegisterPage = () => <AuthLayout content={<RegisterForm />} />;
 
 export default RegisterPage;

@@ -1,10 +1,8 @@
-import CodeVerification from '@/view/authentication/CodeVerification';
-import React from 'react';
-
-// PROJECT IMPORTS
+import AuthLayout from '@/sections/auth/AuthLayout';
+import CodeVerificationForm from '@/view/authentication/CodeVerificationForm';
 
 // ================================|| VERIFY OTP ||================================ //
 
-const CodeVerificationPage = () => <CodeVerification />;
+const CodeVerificationPage = () => <AuthLayout content={<CodeVerificationForm />} />;
 
 export default CodeVerificationPage;

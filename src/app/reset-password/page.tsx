@@ -1,10 +1,8 @@
-import ResetPassword from '@/view/authentication/ResetPassword';
-import React from 'react';
-
-// PROJECT IMPORTS
+import AuthLayout from '@/sections/auth/AuthLayout';
+import ResetPasswordForm from '@/view/authentication/ResetPasswordForm';
 
 // ================================|| RESET PASSWORD ||================================ //
 
-const ResetPasswordPage = () => <ResetPassword />;
+const ResetPasswordPage = () => <AuthLayout content={<ResetPasswordForm />} />;
 
 export default ResetPasswordPage;
