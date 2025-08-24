@@ -26,8 +26,10 @@
     "nodemailer": "^6.10.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-slick": "^0.31.0",
     "react-toastify": "^11.0.5",
     "react18-input-otp": "^1.1.4",
+    "slick-carousel": "^1.8.1",
     "swiper": "^11.2.10",
     "yup": "^1.7.0"
   },
@@ -38,6 +40,7 @@
     "@types/nodemailer": "^7.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-slick": "^0.23.13",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
     "@typescript-eslint/parser": "^8.40.0",
     "eslint": "^9",

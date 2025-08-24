@@ -1,7 +1,5 @@
-import React from 'react';
+import Dashboard from '@/view/user/dashboard';
 
-const landing = () => {
-  return <div>Hello dashboard</div>;
-};
+const landing = () => <Dashboard />;
 
 export default landing;

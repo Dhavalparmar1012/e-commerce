@@ -126,7 +126,9 @@ const Header = () => {
           </>
         ) : (
           <>
-            <Button color="inherit">Home</Button>
+            <Link href="/dashboard">
+              <Button color="inherit">Home</Button>
+            </Link>
             <Button color="inherit">Contact</Button>
             <Link href="/perfume">
               <Button color="inherit">Perfume</Button>
