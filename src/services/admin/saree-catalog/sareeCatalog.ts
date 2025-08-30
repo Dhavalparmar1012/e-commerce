@@ -1,10 +1,14 @@
-import axios, { AxiosError } from 'axios';
 import { toast } from 'react-toastify';
-import { ErrorResponse, RegisterParams } from './type';
+import axios, { AxiosError } from 'axios';
+import { ErrorResponse } from '../type';
 
-export const registerUser = async (userData: RegisterParams) => {
+export const addCatalog = async (formData: FormData) => {
   try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/register`, userData);
+    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/catalog/add`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
     if (!response.data.success) toast.error(response.data.error);
     return response.data;
@@ -14,9 +18,13 @@ export const registerUser = async (userData: RegisterParams) => {
   }
 };
 
-export const forgotPasswordEmail = async (email: string | null) => {
+export const updateCatalog = async (id, updatedData: FormData) => {
   try {
-    const response = await axios.post(`api/forgot-password`, { email });
+    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/products/update/${id}`, updatedData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
     if (!response.data.success) toast.error(response.data.error);
     return response.data;
@@ -26,34 +34,10 @@ export const forgotPasswordEmail = async (email: string | null) => {
   }
 };
 
-export const otpVerification = async (otp: string | null) => {
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/verify-otp`, { otp });
-
-    if (!response.data.success) toast.error(response.data.error);
-    return response.data;
-  } catch (error: unknown) {
-    const axiosError = error as AxiosError<ErrorResponse>;
-    throw new Error(axiosError.response?.data?.message || 'Error occurred');
-  }
-};
-
-export const resetPassword = async (email: string | null, password: string) => {
-  try {
-    const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/reset-password`, { email, password });
-
-    if (!response.data.success) toast.error(response.data.error);
-    return response.data;
-  } catch (error: unknown) {
-    const axiosError = error as AxiosError<ErrorResponse>;
-    throw new Error(axiosError.response?.data?.message || 'Error occurred');
-  }
-};
-
-export const viewUsers = async (search: string) => {
+export const viewCatalog = async (search: string) => {
   try {
     const params = search ? `?search=${encodeURIComponent(search)}` : '';
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/users/get${params}`, {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/catalog/get/${params}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -66,9 +50,24 @@ export const viewUsers = async (search: string) => {
   }
 };
 
-export const deleteUser = async (id) => {
+export const getbyIdCatalog = async (id) => {
   try {
-    const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/users/delete/${id}`, {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/products/getById/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.data.success) toast.error(response.data.error);
+    return response.data.product;
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError<ErrorResponse>;
+    throw new Error(axiosError.response?.data?.message || 'Error occurred');
+  }
+};
+
+export const deleteCatalog = async (id) => {
+  try {
+    const response = await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/catalog/delete/${id}`, {
       headers: {
         'Content-Type': 'application/json',
       },
