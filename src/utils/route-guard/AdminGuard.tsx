@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
@@ -9,18 +9,25 @@ const AdminGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     if (status === 'loading') return;
-    if (!session || session.user.role !== 'admin') {
-      // Redirect to the home page if not admin
-      router.push('/dashboard');
+
+    // Not logged in:
+    if (!session) {
+      router.replace('/');
+      return;
+    }
+
+    // User trying to access admin route
+    if (session.user.role !== 'admin') {
+      router.replace('/dashboard');
     }
   }, [session, status, router]);
 
-  // Render the children (protected page) if the user is admin
-  if (session?.user?.role === 'admin') {
-    return <>{children}</>;
+  // While loading or redirecting
+  if (status === 'loading' || !session || session.user.role !== 'admin') {
+    return null;
   }
 
-  return null;
+  return <>{children}</>;
 };
 
 export default AdminGuard;

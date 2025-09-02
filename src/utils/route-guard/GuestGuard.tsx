@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
@@ -8,25 +8,17 @@ const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (session?.user) {
-        const isAdmin = session.user.role === 'admin';
-        console.log(isAdmin, 'isAdmin--Guest');
-        console.log(session, 'session--Guest');
+    if (status === 'loading') return;
 
-        if (isAdmin) {
-          router.push('/admin');
-        } else {
-          router.push('/dashboard');
-        }
-      }
-    };
-
-    if (status !== 'loading') {
-      fetchData();
+    // Already logged in
+    if (session?.user?.role === 'admin') {
+      router.replace('/admin');
+    } else if (session?.user) {
+      router.replace('/dashboard');
     }
-    // eslint-disable-next-line
-  }, [session, status]);
+  }, [session, status, router]);
+
+  if (status === 'loading' || session) return null;
 
   return <>{children}</>;
 };
