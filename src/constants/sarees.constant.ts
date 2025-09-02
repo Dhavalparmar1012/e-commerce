@@ -120,3 +120,9 @@ export const sarees = [
     img: 'https://images.pexels.com/photos/1721944/pexels-photo-1721944.jpeg',
   },
 ];
+
+export const offers = [
+  { title: 'Festive Sale', desc: 'Min 50% OFF', color: '#ff7043' },
+  { title: 'Buy 1 Get 1', desc: 'On Selected Sarees', color: '#1976d2' },
+  { title: 'Free Delivery', desc: 'On Orders Above ₹999', color: '#388e3c' },
+];
