@@ -1,11 +1,11 @@
 // src\layout\UserLayout\Footer\Footer.tsx
 'use client';
 import React from 'react';
-import { Container, Grid, Typography, Box, Link, styled } from '@mui/material';
+import { Container, Grid, Typography, Box, Link } from '@mui/material';
 
 const Footer = () => {
   return (
-    <Box sx={{ backgroundColor: '#1976d2', color: 'white', mt: 5, width: '100%' }}>
+    <Box sx={{ backgroundColor: '#1976d2', color: 'white', width: '100%' }}>
       <Container sx={{ textAlign: { xs: 'center', md: 'left' }, my: 5 }}>
         <Grid container spacing={4}>
           {/* About Section */}

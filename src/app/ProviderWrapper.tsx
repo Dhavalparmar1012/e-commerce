@@ -6,10 +6,6 @@ import theme from '@/themes/theme';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import createEmotionCache from '@/themes/createEmotion';
 import { AuthProvider } from './Provider';
-import Header from '@/layout/UserLayout/Header/Header';
-import Footer from '@/layout/UserLayout/Footer/Footer';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -33,13 +29,8 @@ const ProviderWrapper = ({ children, emotionCache = clientSideEmotionCache }: Ro
           draggable
           pauseOnHover
         />
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Header />
-          <Box component="main" sx={{ flexGrow: 1, py: 4 }}>
-            <Container maxWidth="lg">{children}</Container>
-          </Box>
-          <Footer />
-        </Box>
+
+        {children}
       </AuthProvider>
     </ThemeProvider>
   </CacheProvider>

@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { Grid, useTheme } from '@mui/material';
-import ProductReviewSlider from '@/view/ProductReviewSlider';
+import ProductReviewSlider from '@/view/productReviewSlider';
 
 interface AuthLayoutProps {
   content: ReactNode;
