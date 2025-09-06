@@ -68,6 +68,8 @@ const CatalogPage = () => {
   );
 
   const handleDelete = useCallback(async (id: string) => {
+    setLoading(true);
+
     try {
       const response = await deleteCatalog(id);
       if (response.success) {
@@ -77,6 +79,8 @@ const CatalogPage = () => {
     } catch (error) {
       console.error('Delete catalog failed:', error);
       toast.error('Failed to delete catalog');
+    } finally {
+      setLoading(false);
     }
   }, []);
 

@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { useFormik } from 'formik';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 // MATERIAL - UI
 import Grid from '@mui/material/Grid';
@@ -20,9 +20,10 @@ import {
   SareeCatalogMainContainer,
 } from './SareeCatalogForm.styled';
 import { ViewSareeCatalogData } from '@/services/admin/saree-catalog/type';
-import { addCatalog, updateCatalog } from '@/services/admin/saree-catalog/sareeCatalog';
+import { addCatalog, getbyIdCatalog, updateCatalog } from '@/services/admin/saree-catalog/sareeCatalog';
 import { basicSareeFields, productSareeFields } from '@/constants/form.constants';
 import { convertToBase64 } from '@/utils/convertToBase64';
+import DragAndDropSingleImage from '../UIComponents/DragAndDropSingleImage';
 
 const validationSchema = Yup.object({
   title: Yup.string().required('Title is required'),
@@ -31,9 +32,11 @@ const validationSchema = Yup.object({
   discountPrice: Yup.number().required('Discount Price is required'),
 });
 const SareeCatalogForm = () => {
-  const { id: productPerfumeId } = useParams();
-  const [productData, setProductData] = useState<ViewSareeCatalogData>();
+  const { id: sareeId } = useParams();
+  const router = useRouter();
+  const [sareeData, setSareeData] = useState<ViewSareeCatalogData>();
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  console.log(sareeData, 'productData');
 
   const initialValues = {
     productName: 'Saree',
@@ -41,11 +44,11 @@ const SareeCatalogForm = () => {
     title: '',
     description: '',
     color: '',
-    price: 0,
-    discountPrice: 0,
+    price: '',
+    discountPrice: '',
     styleCode: '',
     pattern: '',
-    packOf: 0,
+    packOf: '',
     occasion: '',
     decorativeMaterial: '',
     constructionType: '',
@@ -55,10 +58,10 @@ const SareeCatalogForm = () => {
     type: '',
     blousePiece: '',
     sariStyle: '',
-    netQuantity: 0,
-    sariLength: 0,
-    blousePieceLength: 0,
-    weight: 0,
+    netQuantity: '',
+    sariLength: '',
+    blousePieceLength: '',
+    weight: '',
     imageUrl: '',
   };
 
@@ -72,7 +75,9 @@ const SareeCatalogForm = () => {
     handleBlur,
     handleSubmit,
     isSubmitting,
+    setFieldError,
     setSubmitting,
+    setTouched,
     resetForm,
   } = useFormik({
     initialValues,
@@ -85,7 +90,7 @@ const SareeCatalogForm = () => {
 
   const handleSubmitForm = async (formData) => {
     try {
-      let imageUrl = formData.imageUrl; // fallback if already set
+      let imageUrl = formData.imageUrl;
 
       if (selectedImageFile) {
         const base64 = await convertToBase64(selectedImageFile);
@@ -105,18 +110,19 @@ const SareeCatalogForm = () => {
           toast.success('Image uploaded successfully');
         } else {
           toast.error(data.error || 'Image upload failed');
-          return; // ⛔ stop form submission if image upload fails
+          return;
         }
       }
 
       const payload = {
         ...formData,
-        imageUrl, // ✅ use uploaded image URL
+        imageUrl,
       };
 
-      const res = productPerfumeId ? await updateCatalog(productPerfumeId, formData) : await addCatalog(payload);
+      const res = sareeId ? await updateCatalog(sareeId, payload) : await addCatalog(payload);
       if (typeof res !== 'string' && res.success) {
-        toast.success('Product ' + (productPerfumeId ? 'updated' : 'added') + ' successfully');
+        toast.success('Catalog ' + (sareeId ? 'updated' : 'added') + ' successfully');
+        router.push('/admin/catalog');
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -128,23 +134,48 @@ const SareeCatalogForm = () => {
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please upload a valid image file.');
-      return;
+  const handleGetSareeById = async (id) => {
+    const res = await getbyIdCatalog(id);
+    if (typeof res !== 'string' && res.success) {
+      setSareeData(res.catalog);
     }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size should not exceed 5MB.');
-      return;
-    }
-
-    setSelectedImageFile(file); // ⬅️ just store, don't upload yet
   };
+  useEffect(() => {
+    handleGetSareeById(sareeId as string);
+  }, [sareeId]);
 
+  useEffect(() => {
+    if (sareeId) {
+      setValues({
+        ...values,
+        productName: sareeData?.productName || '',
+        brandName: sareeData?.brandName || '',
+        title: sareeData?.title || '',
+        description: sareeData?.description || '',
+        color: sareeData?.color || '',
+        price: sareeData?.price?.toString() || '',
+        discountPrice: sareeData?.discountPrice?.toString() || '',
+        styleCode: sareeData?.styleCode || '',
+        pattern: sareeData?.pattern || '',
+        packOf: sareeData?.packOf?.toString() || '',
+        occasion: sareeData?.occasion || '',
+        decorativeMaterial: sareeData?.decorativeMaterial || '',
+        constructionType: sareeData?.constructionType || '',
+        fabricCare: sareeData?.fabricCare || '',
+        otherDetails: sareeData?.otherDetails || '',
+        fabric: sareeData?.fabric || '',
+        type: sareeData?.type || '',
+        blousePiece: sareeData?.blousePiece || '',
+        sariStyle: sareeData?.sariStyle || '',
+        netQuantity: sareeData?.netQuantity?.toString() || '',
+        sariLength: sareeData?.sariLength?.toString() || '',
+        blousePieceLength: sareeData?.blousePieceLength?.toString() || '',
+        weight: sareeData?.weight?.toString() || '',
+        imageUrl: sareeData?.imageUrl || '',
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sareeData]);
   return (
     <SareeCatalogMainContainer>
       <CatalogTitle variant="h5">Add New Saree</CatalogTitle>
@@ -163,11 +194,17 @@ const SareeCatalogForm = () => {
                     id={field.name}
                     name={field.name}
                     type={field.type}
-                    value={values[field.name]}
+                    value={values[field.name] ?? ''}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     error={Boolean(touched[field.name] && errors[field.name])}
-                    helperText={touched[field.name] && errors[field.name]}
+                    helperText={
+                      touched[field.name] && errors[field.name]
+                        ? errors[field.name]
+                        : field.type === 'number'
+                          ? 'Enter numeric value only'
+                          : ''
+                    }
                     disabled={field.disabled || false}
                     multiline={field.multiline || false}
                     rows={field.rows || 1}
@@ -198,18 +235,15 @@ const SareeCatalogForm = () => {
                   />
                 </Grid>
               ))}
-              <ImageChildContainer size={{ xs: 12, md: 6 }}>
+              <ImageChildContainer size={{ xs: 12, md: 12 }}>
                 <Typography variant="subtitle1">Upload Image</Typography>
-                <input
-                  type="file"
+                <DragAndDropSingleImage
                   name="imageUrl"
-                  id="imageUrl"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={{
-                    display: 'block',
-                    cursor: 'pointer',
-                  }}
+                  setFieldValue={setFieldValue}
+                  file={values.imageUrl}
+                  error={touched.imageUrl && Boolean(errors.imageUrl)}
+                  formik={{ setFieldValue, setFieldError, setTouched, touched, errors }}
+                  onFileSelect={(file) => setSelectedImageFile(file)}
                 />
               </ImageChildContainer>
 

@@ -20,7 +20,7 @@ export const addCatalog = async (formData: FormData) => {
 
 export const updateCatalog = async (id, updatedData: FormData) => {
   try {
-    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/products/update/${id}`, updatedData, {
+    const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/catalog/update/${id}`, updatedData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -52,13 +52,13 @@ export const viewCatalog = async (search: string) => {
 
 export const getbyIdCatalog = async (id) => {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/products/getById/${id}`, {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/catalog/getById/${id}`, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
     if (!response.data.success) toast.error(response.data.error);
-    return response.data.product;
+    return response.data;
   } catch (error: unknown) {
     const axiosError = error as AxiosError<ErrorResponse>;
     throw new Error(axiosError.response?.data?.message || 'Error occurred');

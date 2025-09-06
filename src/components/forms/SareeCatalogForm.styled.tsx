@@ -40,8 +40,8 @@ export const SareeCatalogChildContainer = styled(Box)(() => ({
 export const ImageChildContainer = styled(Grid)(() => ({
   display: 'flex',
   [theme.breakpoints.up('sm')]: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   [theme.breakpoints.down('sm')]: {
     flexDirection: 'column',
