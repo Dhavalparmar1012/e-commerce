@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Loader from '@/components/Loader';
 
 const UserGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
@@ -21,7 +22,7 @@ const UserGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   // While loading or redirecting
   if (status === 'loading' || session?.user?.role === 'admin') {
-    return null;
+    return <Loader />;
   }
 
   return <>{children}</>;

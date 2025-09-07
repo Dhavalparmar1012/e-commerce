@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectMongoDB } from '@/lib/db';
 import Catalog from '@/models/Catalog.model';
 import { Types } from 'mongoose';
+import imagekit from '@/lib/imagekit';
 
 export const PUT = async (req: NextRequest, { params }: { params: { id: string } }) => {
   await connectMongoDB();
@@ -54,7 +55,22 @@ export const PUT = async (req: NextRequest, { params }: { params: { id: string }
       modelName,
       maximumShelfLife,
       imageUrl,
+      imageFileId,
     } = body;
+
+    const existing = await Catalog.findById(catalogId);
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Catalog not found' }, { status: 404 });
+    }
+
+    if (imageFileId && imageFileId !== existing.imageFileId) {
+      try {
+        await imagekit.deleteFile(existing.imageFileId);
+        console.log('Old image deleted');
+      } catch (err) {
+        console.warn('Failed to delete old image', err);
+      }
+    }
 
     const updateData: Record<string, FormDataEntryValue> = {
       productName,
@@ -93,12 +109,9 @@ export const PUT = async (req: NextRequest, { params }: { params: { id: string }
       brand,
       modelName,
       maximumShelfLife,
+      imageUrl,
+      imageFileId,
     };
-
-    // Only update imageUrl if a new image is provided
-    if (imageUrl) {
-      updateData.imageUrl = imageUrl;
-    }
 
     const updatedCatalog = await Catalog.findByIdAndUpdate(catalogId, updateData, {
       new: true,

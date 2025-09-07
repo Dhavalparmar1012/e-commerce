@@ -38,6 +38,7 @@ interface ICatalog extends Document {
   modelName: string;
   maximumShelfLife: number;
   imageUrl: string;
+  imageFileId: string;
 }
 
 const catalogSchema = new Schema<ICatalog>(
@@ -79,6 +80,7 @@ const catalogSchema = new Schema<ICatalog>(
     modelName: { type: String },
     maximumShelfLife: { type: Number },
     imageUrl: { type: String, required: true },
+    imageFileId: { type: String, required: true },
   },
   { timestamps: true }
 );

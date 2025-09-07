@@ -22,16 +22,20 @@ import CircularProgressTableRow from '@/components/UIComponents/CircularProgress
 import { ViewSareeCatalogData } from '@/services/admin/saree-catalog/type';
 import { deleteCatalog, viewCatalog } from '@/services/admin/saree-catalog/sareeCatalog';
 import { debounce } from '@/utils/debounce';
+import Loader from '@/components/Loader';
+import { LoadingState } from '@/types/table';
 
 const CatalogPage = () => {
   const router = useRouter();
 
   const [catalogs, setCatalogs] = useState<ViewSareeCatalogData[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<LoadingState>({ isLoading: false, isProgress: false });
+
   const [searchTerm, setSearchTerm] = useState('');
 
   const fetchCatalogs = useCallback(async (search = ''): Promise<void> => {
-    setLoading(true);
+    setLoading((prev) => ({ ...prev, isProgress: true }));
+
     try {
       const response = await viewCatalog(search);
       setCatalogs(response.data);
@@ -39,7 +43,7 @@ const CatalogPage = () => {
       console.error('Failed to fetch catalogs:', error);
       toast.error('Failed to fetch catalogs');
     } finally {
-      setLoading(false);
+      setLoading((prev) => ({ ...prev, isProgress: false }));
     }
   }, []);
 
@@ -68,7 +72,7 @@ const CatalogPage = () => {
   );
 
   const handleDelete = useCallback(async (id: string) => {
-    setLoading(true);
+    setLoading((prev) => ({ ...prev, isProgress: true }));
 
     try {
       const response = await deleteCatalog(id);
@@ -80,7 +84,7 @@ const CatalogPage = () => {
       console.error('Delete catalog failed:', error);
       toast.error('Failed to delete catalog');
     } finally {
-      setLoading(false);
+      setLoading((prev) => ({ ...prev, isProgress: false }));
     }
   }, []);
 
@@ -88,81 +92,87 @@ const CatalogPage = () => {
     fetchCatalogs();
   }, [fetchCatalogs]);
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" mb={3}>
-          <TextField
-            label="Search Catalog"
-            variant="outlined"
-            fullWidth
-            value={searchTerm}
-            onChange={handleSearchChange}
-            sx={{ maxWidth: 400 }}
-          />
-          <Button variant="contained" color="primary" onClick={() => router.push('/admin/catalog/add')}>
-            Add Catalog
-          </Button>
-        </Stack>
-        <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-          <TableContainer>
-            <Table>
-              <TableHead sx={{ backgroundColor: 'primary.main' }}>
-                <TableRow>
-                  <TableCell sx={{ color: 'white' }}>Brand Name</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Title</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Description</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Price (₹)</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Discount Price (₹)</TableCell>
-                  <TableCell sx={{ color: 'white' }}>Image</TableCell>
-                  <TableCell sx={{ color: 'white' }} align="right">
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {loading ? (
-                  <CircularProgressTableRow colSpan={7} />
-                ) : catalogs.length > 0 ? (
-                  catalogs.map((item) => (
-                    <TableRow key={item._id} hover>
-                      <TableCell>{item.brandName}</TableCell>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell>{item.description}</TableCell>
-                      <TableCell>₹{item.price}</TableCell>
-                      <TableCell>₹{item.discountPrice}</TableCell>
-                      <TableCell>
-                        <Box
-                          component="img"
-                          src={item.imageUrl || '/placeholder.jpg'}
-                          alt={item.title}
-                          style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4 }}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <IconButton color="primary" onClick={() => handleEdit(item._id)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(item._id)}>
-                          <DeleteIcon />
-                        </IconButton>
+    <>
+      {loading.isLoading ? (
+        <Loader />
+      ) : (
+        <Container maxWidth="lg">
+          <Box sx={{ py: 4 }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="space-between" mb={3}>
+              <TextField
+                label="Search Catalog"
+                variant="outlined"
+                fullWidth
+                value={searchTerm}
+                onChange={handleSearchChange}
+                sx={{ maxWidth: 400 }}
+              />
+              <Button variant="contained" color="primary" onClick={() => router.push('/admin/catalog/add')}>
+                Add Catalog
+              </Button>
+            </Stack>
+            <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <TableContainer>
+                <Table>
+                  <TableHead sx={{ backgroundColor: 'primary.main' }}>
+                    <TableRow>
+                      <TableCell sx={{ color: 'white' }}>Brand Name</TableCell>
+                      <TableCell sx={{ color: 'white' }}>Title</TableCell>
+                      <TableCell sx={{ color: 'white' }}>Description</TableCell>
+                      <TableCell sx={{ color: 'white' }}>Price (₹)</TableCell>
+                      <TableCell sx={{ color: 'white' }}>Discount Price (₹)</TableCell>
+                      <TableCell sx={{ color: 'white' }}>Image</TableCell>
+                      <TableCell sx={{ color: 'white' }} align="right">
+                        Actions
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7}>
-                      <Typography align="center" py={3} color="text.secondary">
-                        No catalogs found.
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
-      </Box>
-    </Container>
+                  </TableHead>
+                  <TableBody>
+                    {loading.isProgress ? (
+                      <CircularProgressTableRow colSpan={7} />
+                    ) : catalogs.length > 0 ? (
+                      catalogs.map((item) => (
+                        <TableRow key={item._id} hover>
+                          <TableCell>{item.brandName}</TableCell>
+                          <TableCell>{item.title}</TableCell>
+                          <TableCell>{item.description}</TableCell>
+                          <TableCell>₹{item.price}</TableCell>
+                          <TableCell>₹{item.discountPrice}</TableCell>
+                          <TableCell>
+                            <Box
+                              component="img"
+                              src={item.imageUrl || '/placeholder.jpg'}
+                              alt={item.title}
+                              style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 4 }}
+                            />
+                          </TableCell>
+                          <TableCell align="right">
+                            <IconButton color="primary" onClick={() => handleEdit(item._id)}>
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton color="error" onClick={() => handleDelete(item._id)}>
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={7}>
+                          <Typography align="center" py={3} color="text.secondary">
+                            No catalogs found.
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          </Box>
+        </Container>
+      )}
+    </>
   );
 };
 

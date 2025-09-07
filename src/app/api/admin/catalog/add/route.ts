@@ -47,6 +47,7 @@ export const POST = async (req: NextRequest) => {
       modelName,
       maximumShelfLife,
       imageUrl,
+      imageFileId,
     } = body;
 
     await Catalog.create({
@@ -87,6 +88,7 @@ export const POST = async (req: NextRequest) => {
       modelName,
       maximumShelfLife,
       imageUrl,
+      imageFileId,
     });
 
     return NextResponse.json({ success: true, message: 'Catalog registered.' }, { status: 201 });

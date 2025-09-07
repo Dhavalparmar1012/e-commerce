@@ -24,6 +24,9 @@ import { addCatalog, getbyIdCatalog, updateCatalog } from '@/services/admin/sare
 import { basicSareeFields, productSareeFields } from '@/constants/form.constants';
 import { convertToBase64 } from '@/utils/convertToBase64';
 import DragAndDropSingleImage from '../UIComponents/DragAndDropSingleImage';
+import { LoadingState } from '@/types/table';
+import Loader from '../Loader';
+import CircularLoader from '../CircularLoader';
 
 const validationSchema = Yup.object({
   title: Yup.string().required('Title is required'),
@@ -36,8 +39,10 @@ const SareeCatalogForm = () => {
   const router = useRouter();
   const [sareeData, setSareeData] = useState<ViewSareeCatalogData>();
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  console.log(sareeData, 'productData');
-
+  const [loading, setLoading] = useState<LoadingState>({
+    isLoading: false,
+    isProgress: false,
+  });
   const initialValues = {
     productName: 'Saree',
     brandName: '',
@@ -63,6 +68,7 @@ const SareeCatalogForm = () => {
     blousePieceLength: '',
     weight: '',
     imageUrl: '',
+    imageFileId: '',
   };
 
   const {
@@ -91,6 +97,7 @@ const SareeCatalogForm = () => {
   const handleSubmitForm = async (formData) => {
     try {
       let imageUrl = formData.imageUrl;
+      let imageFileId = formData.imageFileId;
 
       if (selectedImageFile) {
         const base64 = await convertToBase64(selectedImageFile);
@@ -107,6 +114,7 @@ const SareeCatalogForm = () => {
 
         if (data.url) {
           imageUrl = data.url;
+          imageFileId = data.fileId;
           toast.success('Image uploaded successfully');
         } else {
           toast.error(data.error || 'Image upload failed');
@@ -117,6 +125,7 @@ const SareeCatalogForm = () => {
       const payload = {
         ...formData,
         imageUrl,
+        imageFileId,
       };
 
       const res = sareeId ? await updateCatalog(sareeId, payload) : await addCatalog(payload);
@@ -135,13 +144,24 @@ const SareeCatalogForm = () => {
   };
 
   const handleGetSareeById = async (id) => {
-    const res = await getbyIdCatalog(id);
-    if (typeof res !== 'string' && res.success) {
-      setSareeData(res.catalog);
+    setLoading((prev) => ({ ...prev, setLoading: true }));
+    try {
+      const res = await getbyIdCatalog(id);
+      if (typeof res !== 'string' && res.success) {
+        setSareeData(res.catalog);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error fetching data:', error);
+      toast.error('Error fetching data.');
+    } finally {
+      setLoading((prev) => ({ ...prev, setLoading: false }));
     }
   };
   useEffect(() => {
-    handleGetSareeById(sareeId as string);
+    if (sareeId) {
+      handleGetSareeById(sareeId as string);
+    }
   }, [sareeId]);
 
   useEffect(() => {
@@ -177,92 +197,101 @@ const SareeCatalogForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sareeData]);
   return (
-    <SareeCatalogMainContainer>
-      <CatalogTitle variant="h5">Add New Saree</CatalogTitle>
-      <form onSubmit={handleSubmit}>
-        <SareeCatalogContainer>
-          <SareeCatalogChildContainer>
-            <Typography variant="h6" gutterBottom>
-              Basic Details
-            </Typography>
-            <Grid container spacing={1}>
-              {basicSareeFields.map((field) => (
-                <Grid size={{ xs: 12, md: field.multiline ? 12 : 6 }} key={field.name}>
-                  <FormInput
-                    fullWidth
-                    label={field.label}
-                    id={field.name}
-                    name={field.name}
-                    type={field.type}
-                    value={values[field.name] ?? ''}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(touched[field.name] && errors[field.name])}
-                    helperText={
-                      touched[field.name] && errors[field.name]
-                        ? errors[field.name]
-                        : field.type === 'number'
-                          ? 'Enter numeric value only'
-                          : ''
-                    }
-                    disabled={field.disabled || false}
-                    multiline={field.multiline || false}
-                    rows={field.rows || 1}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </SareeCatalogChildContainer>
+    <>
+      {loading.isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          {loading.isProgress && <CircularLoader isProgress={loading.isProgress} />}
+          <SareeCatalogMainContainer>
+            <CatalogTitle variant="h5">Add New Saree</CatalogTitle>
+            <form onSubmit={handleSubmit}>
+              <SareeCatalogContainer>
+                <SareeCatalogChildContainer>
+                  <Typography variant="h6" gutterBottom>
+                    Basic Details
+                  </Typography>
+                  <Grid container spacing={1}>
+                    {basicSareeFields.map((field) => (
+                      <Grid size={{ xs: 12, md: field.multiline ? 12 : 6 }} key={field.name}>
+                        <FormInput
+                          fullWidth
+                          label={field.label}
+                          id={field.name}
+                          name={field.name}
+                          type={field.type}
+                          value={values[field.name] ?? ''}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={Boolean(touched[field.name] && errors[field.name])}
+                          helperText={
+                            touched[field.name] && errors[field.name]
+                              ? errors[field.name]
+                              : field.type === 'number'
+                                ? 'Enter numeric value only'
+                                : ''
+                          }
+                          disabled={field.disabled || false}
+                          multiline={field.multiline || false}
+                          rows={field.rows || 1}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </SareeCatalogChildContainer>
 
-          <SareeCatalogChildContainer>
-            <Typography variant="h6" gutterBottom>
-              Product Details
-            </Typography>
-            <Grid container spacing={3}>
-              {productSareeFields.map((field) => (
-                <Grid size={{ xs: 12, md: 6 }} key={field.name}>
-                  <FormInput
-                    fullWidth
-                    label={field.label}
-                    id={field.name}
-                    name={field.name}
-                    type={field.type}
-                    value={values[field.name]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(touched[field.name] && errors[field.name])}
-                    helperText={touched[field.name] && errors[field.name]}
-                  />
-                </Grid>
-              ))}
-              <ImageChildContainer size={{ xs: 12, md: 12 }}>
-                <Typography variant="subtitle1">Upload Image</Typography>
-                <DragAndDropSingleImage
-                  name="imageUrl"
-                  setFieldValue={setFieldValue}
-                  file={values.imageUrl}
-                  error={touched.imageUrl && Boolean(errors.imageUrl)}
-                  formik={{ setFieldValue, setFieldError, setTouched, touched, errors }}
-                  onFileSelect={(file) => setSelectedImageFile(file)}
-                />
-              </ImageChildContainer>
+                <SareeCatalogChildContainer>
+                  <Typography variant="h6" gutterBottom>
+                    Product Details
+                  </Typography>
+                  <Grid container spacing={3}>
+                    {productSareeFields.map((field) => (
+                      <Grid size={{ xs: 12, md: 6 }} key={field.name}>
+                        <FormInput
+                          fullWidth
+                          label={field.label}
+                          id={field.name}
+                          name={field.name}
+                          type={field.type}
+                          value={values[field.name]}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          error={Boolean(touched[field.name] && errors[field.name])}
+                          helperText={touched[field.name] && errors[field.name]}
+                        />
+                      </Grid>
+                    ))}
+                    <ImageChildContainer size={{ xs: 12, md: 12 }}>
+                      <Typography variant="subtitle1">Upload Image</Typography>
+                      <DragAndDropSingleImage
+                        name="imageUrl"
+                        setFieldValue={setFieldValue}
+                        file={values.imageUrl}
+                        error={touched.imageUrl && Boolean(errors.imageUrl)}
+                        formik={{ setFieldValue, setFieldError, setTouched, touched, errors }}
+                        onFileSelect={(file) => setSelectedImageFile(file)}
+                      />
+                    </ImageChildContainer>
 
-              {/* Submit Button */}
-              <Grid size={{ xs: 12 }}>
-                <SareeCatalogButtonContainer>
-                  <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
-                  </Button>
-                  <Link href="/admin/catalog">
-                    <Button variant="contained">Back</Button>
-                  </Link>
-                </SareeCatalogButtonContainer>
-              </Grid>
-            </Grid>
-          </SareeCatalogChildContainer>
-        </SareeCatalogContainer>
-      </form>
-    </SareeCatalogMainContainer>
+                    {/* Submit Button */}
+                    <Grid size={{ xs: 12 }}>
+                      <SareeCatalogButtonContainer>
+                        <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
+                          {isSubmitting ? 'Submitting...' : 'Submit'}
+                        </Button>
+                        <Link href="/admin/catalog">
+                          <Button variant="contained">Back</Button>
+                        </Link>
+                      </SareeCatalogButtonContainer>
+                    </Grid>
+                  </Grid>
+                </SareeCatalogChildContainer>
+              </SareeCatalogContainer>
+            </form>
+          </SareeCatalogMainContainer>
+        </>
+      )}
+    </>
   );
 };
 

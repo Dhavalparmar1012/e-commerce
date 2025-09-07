@@ -16,7 +16,10 @@ export async function POST(req: NextRequest) {
       folder: 'saree-catalog',
     });
 
-    return NextResponse.json({ success: true, url: result.url, message: 'Upload Image Successfully' }, { status: 201 });
+    return NextResponse.json(
+      { success: true, url: result.url, fileId: result.fileId, message: 'Upload Image Successfully' },
+      { status: 201 }
+    );
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Image upload failed' }, { status: 500 });

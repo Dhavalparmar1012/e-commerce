@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import Loader from '@/components/Loader';
 
 const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { data: session, status } = useSession();
@@ -18,7 +19,7 @@ const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   }, [session, status, router]);
 
-  if (status === 'loading' || session) return null;
+  if (status === 'loading' || session) return <Loader />;
 
   return <>{children}</>;
 };
